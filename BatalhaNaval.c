@@ -9,6 +9,14 @@
 #define FRAGATA 2 // Nome e valor do barco 3
 #define SUBMARINO 1  // Nome e valor do barco 4
 
+//Função pra garantir que todos os campos sejam 0 no início
+void inicializarCampo(int campo[TAMANHO_CAMPO][TAMANHO_CAMPO]) {
+    for (int i = 0; i < TAMANHO_CAMPO; i++) {
+        for (int j = 0; j < TAMANHO_CAMPO; j++) {
+            campo[i][j] = 0;
+        }
+    }
+}
 
 //Função que posiciona os barcos de acordo com a posição X e Y do campo
 void posicionarBarcos(int tipo_barco, int campo[TAMANHO_CAMPO][TAMANHO_CAMPO]){
@@ -22,10 +30,14 @@ void posicionarBarcos(int tipo_barco, int campo[TAMANHO_CAMPO][TAMANHO_CAMPO]){
 
         // Verifica se a posição está dentro dos limites do campo
         if (x >= 0 && x < TAMANHO_CAMPO && y >= 0 && y < TAMANHO_CAMPO) {
-            campo[x][y] = tipo_barco; // Insere o barco no campo
-            printf("Barco %d posicionado em (%d , %d).\n", tipo_barco, x, y);
-            printf("=================================================================\n");
-            break; // Sai do loop quando a posição for válida
+            if (campo[x][y] == 0) {
+                campo[x][y] = tipo_barco; // Insere o barco no campo
+                printf("Barco %d posicionado em (%d , %d).\n", tipo_barco, x, y);
+                printf("=================================================================\n");
+                break; // Sai do loop quando a posição for válida
+            } else {
+                printf("Ja ha um barco nesta posicao! Tente novamente.\n");
+            }
         } else {
             printf("Posicao invalida! Tente novamente.\n");
         }
@@ -33,45 +45,55 @@ void posicionarBarcos(int tipo_barco, int campo[TAMANHO_CAMPO][TAMANHO_CAMPO]){
 
 }
 
-//Igor
-int RealizarJogada(int campo[TAMANHO_CAMPO][TAMANHO_CAMPO], bool VezJogadorUm) { //Campo e de quem é a vez de jogar como parâmetros
+// Função para realizar a jogada de um jogador
+int RealizarJogada(int campo[TAMANHO_CAMPO][TAMANHO_CAMPO]) {
     int x, y, Pontuacao = 0;
-    
-    //Bloco pra escolher a coordenada de ataque
-    printf("X:");
-    scanf("%d", &x);
-    printf(" Y:");
-    scanf("%d", &y);
-    
-    if(x >= 0 && x < TAMANHO_CAMPO && y >= 0 && y < TAMANHO_CAMPO) { //Garantir que seja uma jogada válida
-        if(campo[x][y] != 0) { //Se a coordenada escolhida não estiver vazia, verifica quanto vale o barco acertado
-            int pontuacaoBarco = campo[x][y];
-            campo[x][y] = 0; //Zera a posicao, "retirando" o barco da coordenada
-            
-            switch (pontuacaoBarco){ //Estrutura pra verificar a Pontuacao da jogada
-                case SUBMARINO:
-                    Pontuacao += SUBMARINO;
-                    printf("Você acertou um Submarino! +%d ponto.\n", SUBMARINO);
-                    break;
-                case FRAGATA:
-                    Pontuacao += FRAGATA;
-                    printf("Você acertou uma Fragata! +%d pontos.\n", FRAGATA);
-                    break;
-                case DESTROYER:
-                    Pontuacao += DESTROYER;
-                    printf("Você acertou um Destroyer! +%d pontos.\n", DESTROYER);
-                    break;
-                case PORTAAVIOES:
-                    Pontuacao += PORTAAVIOES;
-                    printf("Você acertou um Porta-Aviões! +%d pontos.\n", PORTAAVIOES);
-                    break;
+
+    // Bloco para escolher a coordenada de ataque
+    while (1) { // Loop até que o jogador insira uma posição válida
+        printf("X: ");
+        scanf("%d", &x);
+        printf("Y: ");
+        scanf("%d", &y);
+
+        // Verifica se a jogada está dentro dos limites do campo
+        if (x >= 0 && x < TAMANHO_CAMPO && y >= 0 && y < TAMANHO_CAMPO) {
+            if (campo[x][y] == 0) {
+                printf("Chuaaa, Nada!\n");
+                break; // Jogada errada, mas válida
+            } else if (campo[x][y] == -1) { // Se um barco foi afundado
+                printf("Este local já foi atacado! Tente outro.\n");
+            } else {
+                int pontuacaoBarco = campo[x][y];
+                campo[x][y] = -1; // Afunda o barco
+                
+                // Atribui pontos conforme o tipo do barco atingido
+                switch (pontuacaoBarco) {
+                    case SUBMARINO:
+                        Pontuacao += SUBMARINO;
+                        printf("Você acertou um Submarino! +%d ponto.\n", SUBMARINO);
+                        break;
+                    case FRAGATA:
+                        Pontuacao += FRAGATA;
+                        printf("Você acertou uma Fragata! +%d ponto.\n", FRAGATA);
+                        break;
+                    case DESTROYER:
+                        Pontuacao += DESTROYER;
+                        printf("Você acertou um Destroyer! +%d ponto.\n", DESTROYER);
+                        break;
+                    case PORTAAVIOES:
+                        Pontuacao += PORTAAVIOES;
+                        printf("Você acertou um Porta-Aviões! +%d ponto.\n", PORTAAVIOES);
+                        break;
+                }
+                break; // Jogada válida, sai do loop
             }
         } else {
-            printf("\nChuaaa, Nada!");
-        }    
-    } else {
-        printf("Posição inválida! As coordenadas devem estar entre 0 e %d.\n", TAMANHO_CAMPO);
+            printf("Posição inválida! As coordenadas devem estar entre 0 e %d.\n", TAMANHO_CAMPO - 1);
+        }
     }
+
+    return Pontuacao;
 }
 
 int main() {
@@ -81,6 +103,8 @@ int main() {
     bool VezJogadorUm = true; // Variavel booleana pra definir quem joga na rodada - Igor
     int Pontuacao1 = 0, Pontuacao2 = 0;
 
+    inicializarCampo(campo_a);
+    inicializarCampo(campo_b);
 
     // Leitura dos nomes dos jogadores
     printf("Digite o nome do Jogador 1: ");
@@ -125,15 +149,15 @@ int main() {
     printf("Hora de atacar! 5 tentativas para cada jogador.\n");
     
     for(int i = 0; i < 5; i++){ //Loop pra permitir a jogada de cada jogador 5 vezes - Igor
-        printf("\n%s sua vez de jogar!", jogador1);
+        printf("\n%s sua vez de jogar!\n", jogador1);
         Pontuacao1 += RealizarJogada(campo_a, VezJogadorUm);
-        printf("\n%s sua vez de jogar!", jogador2);
+        printf("\n%s sua vez de jogar!\n", jogador2);
         Pontuacao2  += RealizarJogada(campo_a, !VezJogadorUm);
     }
     
     if(Pontuacao1 > Pontuacao2) {
-       printf("\n%s ganhou!!!", jogador1); 
+       printf("\nCom %d pontos, %s ganhou!!!", Pontuacao1, jogador1); 
     } else {
-       printf("\n%s ganhou!!!", jogador2); 
+       printf("\nCom %d pontos, %s ganhou!!!",  Pontuacao2, jogador2); 
     }
 }
