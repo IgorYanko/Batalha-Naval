@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 #define TAMANHO_CAMPO 5
 #define MAX_BARCO 8  // Número de barcos no total (4 para os dois jogadores)
@@ -100,7 +99,6 @@ int main() {
     char jogador1[30], jogador2[30];  // Vetores para armazenar os nomes dos jogadores
     int campo_a[TAMANHO_CAMPO][TAMANHO_CAMPO];
     int campo_b[TAMANHO_CAMPO][TAMANHO_CAMPO];
-    bool VezJogadorUm = true; // Variavel booleana pra definir quem joga na rodada - Igor
     int Pontuacao1 = 0, Pontuacao2 = 0;
 
     inicializarCampo(campo_a);
@@ -150,14 +148,16 @@ int main() {
     
     for(int i = 0; i < 5; i++){ //Loop pra permitir a jogada de cada jogador 5 vezes - Igor
         printf("\n%s sua vez de jogar!\n", jogador1);
-        Pontuacao1 += RealizarJogada(campo_a, VezJogadorUm);
+        Pontuacao1 += RealizarJogada(campo_a);
         printf("\n%s sua vez de jogar!\n", jogador2);
-        Pontuacao2  += RealizarJogada(campo_a, !VezJogadorUm);
+        Pontuacao2  += RealizarJogada(campo_a);
     }
     
     if(Pontuacao1 > Pontuacao2) {
        printf("\nCom %d pontos, %s ganhou!!!", Pontuacao1, jogador1); 
-    } else {
+    } else if(Pontuacao1 < Pontuacao2) {
        printf("\nCom %d pontos, %s ganhou!!!",  Pontuacao2, jogador2); 
+    } else {
+        printf("Empate!");
     }
 }
